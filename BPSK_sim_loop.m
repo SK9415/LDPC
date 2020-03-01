@@ -15,10 +15,15 @@ N_block = 100000; %we introduced N_block because we need to transmit a large num
 for i = 1:N_block
     msg = randi([0 1],1,N); %generate random msg
     %enoding will be done here
-    s = 1- 2*msg;
+    s = 1- 2*msg; %BPSK signal 
     r = s + sigma * randn(1,N); % AWGN channel
     %decd\oding will be done here
-    msg_cap = (r<0); %threshold at 0
+    %threshold at 0. check for each value of array r is < 0, put logical
+    %value of that decision in msg_cap array
+    % eg: r = [-0.003 0.545 1.5376 -1.463]
+    % r<0 = [(-0.003<0) (0.545<0) (1.5376,0) (-1.463<0)]
+    % => [1 0 0 1]
+    msg_cap = (r<0); 
 
     Nerrs = Nerrs + sum(msg ~= msg_cap);
 end

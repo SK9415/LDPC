@@ -25,7 +25,14 @@ for i = 1:N_block
     r = s + sigma * randn(1,n); % AWGN channel
     
     %decd\oding will be done here
-    %hard decision
+    %HARD DECISION
+    %threshold at 0. check for each value of array r is < 0, put logical
+    %value of that decision in msg_cap array
+    % eg: r = [-0.003 0.545 1.5376 -1.463]
+    % r<0 = [(-0.003<0) (0.545<0) (1.5376,0) (-1.463<0)]
+    % simply put, -0.003 is less that 0, that means the recieved BPSK bit
+    % is -1, so actual sigal bit is 1 & vice-versa. So I compared directly
+    % => [1 0 0 1]
     b = (r<0);
     if sum(b)>1
         msg_cap1 = 1;
@@ -33,11 +40,17 @@ for i = 1:N_block
         msg_cap1 = 0;
     end
     
-    %soft decision
-    if sum(r)< 0
-        msg_cap2 = 1;
-    else
+    %SOFT DECISION
+    % we know that r is the recieved signal(BPSK with AWGN). For soft decision, we will
+    % calculate the Euclidion distance. that means
+    % If sq(|[r] - [+1 +1 +1]|)<sq([r]- [-1 -1 -1]| => msg = 0 else msg =1
+    %expand this equation, & u will get 
+    %if [r] > 0 => msg = 0 else msg = 1
+    % note: [+1 +1 +1] is symbol vector for [0 0 0]
+    if sum(r)> 0
         msg_cap2 = 0;
+    else
+        msg_cap2 = 1;
     end
     
     Nerrs = Nerrs + sum(msg ~= msg_cap1); %checking for decision
